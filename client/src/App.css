@@ -81,13 +81,38 @@ p:hover {
 }
 
 /* Alternate Message Colors */
-p:nth-child(odd) {
-  background: linear-gradient(45deg, #3a0ca3, #ff006e);
+p:nth-of-type(6n + 1) {
+  background: linear-gradient(45deg, #ff5733, #ffbd69); /* Warm shades */
   color: white;
 }
 
-p:nth-child(even) {
-  background: linear-gradient(45deg, #00f5d4, #ff006e);
+/* User 2 */
+p:nth-of-type(6n + 2) {
+  background: linear-gradient(45deg, #33d9b2, #0decbc); /* Cool shades */
+  color: black;
+}
+
+/* User 3 */
+p:nth-of-type(6n + 3) {
+  background: linear-gradient(45deg, #6a11cb, #2575fc); /* Blue shades */
+  color: white;
+}
+
+/* User 4 */
+p:nth-of-type(6n + 4) {
+  background: linear-gradient(45deg, #ff006e, #d00000); /* Red shades */
+  color: white;
+}
+
+/* User 5 */
+p:nth-of-type(6n + 5) {
+  background: linear-gradient(45deg, #00b4d8, #0077b6); /* Teal shades */
+  color: white;
+}
+
+/* User 6 */
+p:nth-of-type(6n + 6) {
+  background: linear-gradient(45deg, #ff7b00, #ffaf00); /* Orange shades */
   color: black;
 }
 
