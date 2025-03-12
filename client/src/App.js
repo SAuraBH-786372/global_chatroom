@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
-let socket; // Declare a single socket instance
+
+let socket;
 
 const App = () => {
     const [username, setUsername] = useState('');
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [isNameSet, setIsNameSet] = useState(false);
+    const [onlineUsers, setOnlineUsers] = useState(0);
 
+    // Wrap connectWebSocket inside useCallback
     const connectWebSocket = useCallback(() => {
-        if (socket) return; // Prevent duplicate connections
+        if (socket) return;
 
-        socket = new WebSocket(`https://global-chatroom.onrender.com`);
+        socket = new WebSocket(`ws://localhost:5000`);
 
         socket.onopen = () => {
             console.log('Connected to WebSocket server');
@@ -19,19 +22,24 @@ const App = () => {
 
         socket.onmessage = (event) => {
             const receivedMessage = JSON.parse(event.data);
-            setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+            if (receivedMessage.type === "userCount") {
+                setOnlineUsers(receivedMessage.count);
+            } else {
+                setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+            }
         };
 
         socket.onclose = () => {
-            console.log('WebSocket disconnected, reconnecting...');
-            setTimeout(connectWebSocket, 3000); // Reconnect after 3 seconds
+            console.log('WebSocket disconnected, reconnecting in 3 seconds...');
+            setTimeout(connectWebSocket, 3000);
         };
 
         socket.onerror = (err) => {
             console.log('WebSocket error:', err);
         };
-    }, []);
+    }, []); // Empty dependency array ensures it's only created once
 
+    // useEffect with correct dependency
     useEffect(() => {
         connectWebSocket();
 
@@ -41,7 +49,7 @@ const App = () => {
                 socket = null;
             }
         };
-    }, [connectWebSocket]);
+    }, [connectWebSocket]); // ✅ Add connectWebSocket as a dependency
 
     const handleSetUsername = () => {
         if (username.trim()) {
@@ -60,6 +68,7 @@ const App = () => {
     return (
         <div className="chat-container">
             <h2>Global Chatroom</h2>
+            <p>🟢 {onlineUsers} masterminds online… and somehow, YOU made the list 🫵🤔</p>
 
             {!isNameSet ? (
                 <div className="username-container">

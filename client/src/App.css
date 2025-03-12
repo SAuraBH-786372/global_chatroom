@@ -91,6 +91,20 @@ p:nth-of-type(6n + 2) {
   background: linear-gradient(45deg, #33d9b2, #0decbc); /* Cool shades */
   color: black;
 }
+.about-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.about-button:hover {
+  background-color: #0056b3;
+}
 
 /* User 3 */
 p:nth-of-type(6n + 3) {
