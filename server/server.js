@@ -5,7 +5,7 @@ const wss = new WebSocket.Server({ port: PORT });
 
 let onlineUsers = 0; // Track the number of online users
 
-console.log(`WebSocket server running on ws://localhost:${PORT}`);
+console.log(`WebSocket server running on port ${PORT}`);
 
 // Function to broadcast online user count to all connected clients
 const broadcastUserCount = () => {

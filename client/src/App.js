@@ -14,7 +14,8 @@ const App = () => {
     const connectWebSocket = useCallback(() => {
         if (socket) return;
 
-        socket = new WebSocket(`ws://localhost:5000`);
+        socket = new WebSocket(`wss://global-chatroom.onrender.com`);
+
 
         socket.onopen = () => {
             console.log('Connected to WebSocket server');
