@@ -160,6 +160,109 @@ input:focus {
   box-shadow: 0 0 10px rgba(255, 0, 110, 0.8);
   transform: scale(1.05);
 }
+.about-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.about-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b, #ff9800, #ffcc00);
+  background-size: 300% 300%;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 1.3em;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  text-decoration: none; /* Remove underline */
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0 4px 15px rgba(255, 72, 0, 0.4);
+  animation: gradientBG 5s ease infinite;
+}
+
+/* Gradient Animation */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.about-button:hover {
+  background: linear-gradient(45deg, #ffcc00, #ff9800, #ff4b2b, #ff416c);
+  background-size: 300% 300%;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(255, 72, 0, 0.6);
+}
+
+.about-button:active {
+  transform: scale(0.95);
+}
+
+.about-icon {
+  font-size: 1.0em;
+  transition: transform 0.3s ease-in-out;
+}
+
+.about-button:hover .about-icon {
+  transform: rotate(360deg);
+}
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  word-wrap: break-word;
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+}
+
+.sent {
+  align-self: flex-end;
+  color: white;
+}
+
+.received {
+  align-self: flex-start;
+  color: black;
+}
+.message {
+  padding: 10px;
+  border-radius: 8px;
+  margin: 8px 0;
+  max-width: 60%;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.timestamp {
+  display: block;
+  font-size: 0.75rem;
+  color: gray;
+  text-align: right;
+  margin-top: 3px;
+}
+
+/* Prevents hover issues */
+.message:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+
 
 /* Message Input */
 .message-input {
