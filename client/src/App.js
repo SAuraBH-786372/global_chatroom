@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaInfoCircle } from 'react-icons/fa'; // Import the About icon
+import { FaInfoCircle } from 'react-icons/fa';
 import './App.css';
 
 let socket;
+let hasJoined = false; // Track if the welcome message has already been sent
 
 const App = () => {
     const [username, setUsername] = useState('');
@@ -10,41 +11,55 @@ const App = () => {
     const [message, setMessage] = useState('');
     const [isNameSet, setIsNameSet] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState(0);
+    const [soundEnabled, setSoundEnabled] = useState(false);
+    const chatBoxRef = React.useRef(null);
+
+    useEffect(() => {
+        if (chatBoxRef.current) {
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     const connectWebSocket = useCallback(() => {
         if (socket) return;
 
-        socket = new WebSocket(`wss://global-chatroom.onrender.com`);
+        socket = new WebSocket('wss://global-chatroom.onrender.com');
 
         socket.onopen = () => {
             console.log('Connected to WebSocket server');
+            if (isNameSet && !hasJoined) {
+                socket.send(JSON.stringify({ type: 'join', user: username }));
+                hasJoined = true; // Ensure welcome message is sent only once
+            }
         };
+
+        document.addEventListener(
+            'click',
+            () => {
+                setSoundEnabled(true);
+            },
+            { once: true }
+        );
 
         socket.onmessage = (event) => {
             const receivedMessage = JSON.parse(event.data);
-        
-            if (receivedMessage.type === "userCount") {
+
+            if (receivedMessage.type === 'userCount') {
                 setOnlineUsers(receivedMessage.count);
+            } else if (
+                receivedMessage.user === 'Server' &&
+                receivedMessage.text === 'Welcome to the chatroom!' &&
+                messages.some((msg) => msg.text === 'Welcome to the chatroom!')
+            ) {
+                return; // Ignore duplicate welcome messages
             } else {
                 setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-        
-                if (receivedMessage.user !== username) {  
-                    // Use Web Audio API for better browser support
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    fetch('/notification.mp3')
-                        .then(response => response.arrayBuffer())
-                        .then(data => audioContext.decodeAudioData(data))
-                        .then(buffer => {
-                            const source = audioContext.createBufferSource();
-                            source.buffer = buffer;
-                            source.connect(audioContext.destination);
-                            source.start(0);
-                        })
-                        .catch(error => console.log("Audio play failed:", error));
+
+                if (receivedMessage.user !== username && soundEnabled) {
+                    playNotificationSound();
                 }
             }
         };
-        
 
         socket.onclose = () => {
             console.log('WebSocket disconnected, reconnecting in 3 seconds...');
@@ -54,7 +69,7 @@ const App = () => {
         socket.onerror = (err) => {
             console.log('WebSocket error:', err);
         };
-    }, []);
+    }, [username, isNameSet, soundEnabled, messages]);
 
     useEffect(() => {
         connectWebSocket();
@@ -70,46 +85,39 @@ const App = () => {
     const handleSetUsername = () => {
         if (username.trim()) {
             setIsNameSet(true);
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const joinMessage = {
+                    user: 'Server',
+                    text: `${username} joined the chat`,
+                    timestamp: new Date().toISOString(),
+                };
+                socket.send(JSON.stringify({ type: 'join', user: username }));
+                setMessages((prevMessages) => [...prevMessages, joinMessage]); // Display join message
+            }
         }
     };
 
     const sendMessage = () => {
-        if (message.trim() && socket.readyState === WebSocket.OPEN) {
+        if (message.trim() && socket && socket.readyState === WebSocket.OPEN) {
             const msgObj = {
                 user: username,
-                text: message,
-                timestamp: new Date().toISOString(), // Store timestamp in ISO format
+                text: message.trim(), // Ensure empty messages are not sent
+                timestamp: new Date().toISOString(),
             };
             socket.send(JSON.stringify(msgObj));
             setMessage('');
         }
     };
 
-    const formatTimestamp = (isoString) => {
-        if (!isoString) return ""; // If timestamp is missing, return empty
-        const date = new Date(isoString);
-        const now = new Date();
-
-        // Check if message was sent today
-        const isToday = date.toDateString() === now.toDateString();
-
-        if (isToday) {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        } else {
-            return date.toLocaleDateString([], { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+    useEffect(() => {
+        if (isNameSet && socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'join', user: username }));
         }
-    };
+    }, [isNameSet]);
 
-    const [userColors, setUserColors] = useState({});
-
-    // Function to get or assign a color
-    const getUserColor = (user) => {
-        if (!userColors[user]) {
-            const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
-            setUserColors((prevColors) => ({ ...prevColors, [user]: randomColor }));
-            return randomColor;
-        }
-        return userColors[user];
+    const playNotificationSound = () => {
+        const audio = new Audio('/notification.mp3');
+        audio.play().catch((error) => console.warn('Audio playback prevented:', error));
     };
 
     return (
@@ -129,15 +137,26 @@ const App = () => {
                 </div>
             ) : (
                 <>
-                    <div className="chat-box">
+                    <div className="chat-box" ref={chatBoxRef}>
                         {messages.map((msg, index) => (
-                            <div key={index} className={`message ${msg.user === username ? "sent" : "received"}`}
-                                style={{ backgroundColor: msg.user === username ? "#4CAF50" : getUserColor(msg.user) }}>
-                                <strong>{msg.user}:</strong> {msg.text}
-                                <span className="timestamp">{formatTimestamp(msg.timestamp)}</span> 
+                            <div
+                                key={index}
+                                className={`message ${msg.user === username ? 'sent' : 'received'}`}
+                                style={{
+                                    backgroundColor: msg.user === username ? '#4CAF50' : msg.user === 'Server' ? '#f0f0f0' : '#0084ff',
+                                    fontStyle: msg.user === 'Server' ? 'italic' : 'normal',
+                                    textAlign: msg.user === 'Server' ? 'center' : 'left',
+                                    color: msg.user === 'Server' ? '#333' : '#fff',
+                                    padding: '8px',
+                                    borderRadius: '10px',
+                                    margin: '5px 0',
+                                }}
+                            >
+                                <strong>{msg.user !== 'Server' ? `${msg.user}:` : ''}</strong> {msg.text}
                             </div>
                         ))}
                     </div>
+
                     <input
                         type="text"
                         value={message}
@@ -148,7 +167,6 @@ const App = () => {
                 </>
             )}
 
-            {/* Fancy About Button below the chat container */}
             <div className="about-button-container">
                 <a href="about.html" className="about-button">
                     <FaInfoCircle className="about-icon" />
