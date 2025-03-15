@@ -3,7 +3,7 @@ import { FaUserCircle, FaPaperPlane, FaUsers, FaBell, FaBellSlash, FaMoon, FaSun
 import './App.css';
 
 // WebSocket URL for development
-const WS_URL = 'ws://localhost:5000';
+const WS_URL = process.env.REACT_APP_WS_URL || 'wss://global-chatroom-s8h4.onrender.com';
 
 // About Modal Component
 const AboutModal = ({ isOpen, onClose }) => {
@@ -33,8 +33,8 @@ const AboutModal = ({ isOpen, onClose }) => {
           </div>
           <div className="contact-info">
             <h4>Connect with me:</h4>
-            <p>Email: your.email@example.com</p>
-            <p>GitHub: github.com/yourusername</p>
+            <p>Email: saurabhjoshi1080.com</p>
+            <p>GitHub: https://github.com/SAuraBH-786372/</p>
           </div>
         </div>
       </div>
