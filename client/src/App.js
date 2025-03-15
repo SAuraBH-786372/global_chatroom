@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { FaUserCircle, FaPaperPlane, FaUsers, FaBell, FaBellSlash, FaMoon, FaSun, FaGlobe, FaLock, FaBolt, FaInfoCircle, FaTimes } from 'react-icons/fa';
 import './App.css';
 
-// WebSocket URL for development
-const WS_URL = process.env.REACT_APP_WS_URL || 'wss://global-chatroom-s8h4.onrender.com';
+// Hardcoded WebSocket URL
+const WS_URL = 'wss://global-chatroom-s8h4.onrender.com';
 
 // About Modal Component
 const AboutModal = ({ isOpen, onClose }) => {

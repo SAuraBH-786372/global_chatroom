@@ -1,8 +1,29 @@
 require('dotenv').config();
 const WebSocket = require('ws');
+const http = require('http');
+const express = require('express');
+const cors = require('cors');
 
+const app = express();
 const PORT = process.env.PORT || 5000;
-const wss = new WebSocket.Server({ port: PORT });
+
+// Enable CORS
+app.use(cors());
+
+// Basic route for health check
+app.get('/', (req, res) => {
+    res.send('WebSocket Server is running');
+});
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Create WebSocket server
+const wss = new WebSocket.Server({ 
+    server,
+    // Enable client tracking
+    clientTracking: true,
+});
 
 let onlineUsers = 0;
 const connectedClients = new Map(); // Track clients with their usernames
@@ -212,3 +233,8 @@ const cleanup = () => {
 
 process.on('SIGTERM', cleanup);
 process.on('SIGINT', cleanup);
+
+// Start the server
+server.listen(PORT, () => {
+    console.log(`HTTP/WebSocket server is running on port ${PORT}`);
+});
