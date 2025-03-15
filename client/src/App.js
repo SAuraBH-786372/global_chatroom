@@ -277,6 +277,10 @@ function App() {
     setNotificationCount(0);
   }, []);
 
+  const toggleAbout = useCallback(() => {
+    setIsAboutOpen(prev => !prev);
+  }, []);
+
   if (!hasJoined) {
     return (
       <div className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -308,11 +312,13 @@ function App() {
               <span>Secure Connection</span>
             </div>
           </div>
-          <button className="about-button" onClick={() => setIsAboutOpen(true)} title="About Developer">
-            <FaInfoCircle />
-          </button>
+          <div className="about-button-container">
+            <button className="about-button" onClick={toggleAbout}>
+              <FaInfoCircle /> About
+            </button>
+          </div>
         </div>
-        <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+        <AboutModal isOpen={isAboutOpen} onClose={toggleAbout} />
       </div>
     );
   }
