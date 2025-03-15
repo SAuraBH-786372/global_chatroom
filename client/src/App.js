@@ -3,7 +3,7 @@ import { FaUserCircle, FaPaperPlane, FaUsers, FaBell, FaBellSlash, FaMoon, FaSun
 import './App.css';
 
 // Hardcoded WebSocket URL
-const WS_URL = 'wss://global-chatroom-s8h4.onrender.com';
+const WS_URL = 'wss://global-chatroom.onrender.com';
 
 // About Modal Component
 const AboutModal = ({ isOpen, onClose }) => {
